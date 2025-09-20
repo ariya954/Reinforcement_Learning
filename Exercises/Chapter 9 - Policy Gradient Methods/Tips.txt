@@ -1,0 +1,45 @@
+To resolve the bugs for running the DQN Atari environment:
+	First to install gym library for building the DQN Atari environment:
+		Navigate to D:/python/Scripts
+		Hold shift and right click (shift + right click)
+		click on "open in terminal"
+		type "python3 -m venv my_env"
+		Navigate to D:/python/my_env
+		Hold shift and right click (shift + right click)
+		click on "open in terminal"
+		type "pip install gym"
+		Copy the gym folders under D:/python/my_env/Lib/site-packages into D:/python/Scripts/Lib
+		If there are connection errors, try using backup (mirror) servers of pypi.org by typing "pip install <package_name> --index-url https://pypi.tuna.tsinghua.edu.cn/simple" 		
+	After installing gym library, correct the following lines of the dqn_atari.py in run_train_loop and run_evaluation_loop function:
+		s_t, _ = gym_env_processor.AtariResetWrapper.reset(env)
+		s_tp1, r_t, done, info = gym_env_processor.AtariStepWrapper.step(env, a_t)
+	In gym_env_processor.py, add the following classes:
+		class AtariResetWrapper(gym.ObservationWrapper):
+    			def __init__(self, env):
+        				super().__init__(env)
+
+    			def reset(self, **kwargs):
+        			"""
+        			Overrides the reset method to always return a tuple of (observation, info)
+        			even if the base environment only returns the observation.
+        			"""
+        				observation = self.env.reset(**kwargs)
+        				info = {} # create an empty info dictionary
+        				return observation, info
+
+		class AtariStepWrapper(gym.ObservationWrapper):
+			def __init__(self, env):
+        				gym.Wrapper.__init__(self, env)
+
+			def step(self, action):
+        				obs, reward, done, info = AtariStepWrapper.step(self, action)
+        				return obs, reward, done, info 
+	In choose_action functions (there are two of this function under two different classes), correct the following lines:
+		observation_np = np.array(observation[0])
+		s_t = torch.tensor(observation_np[None, ...]).to(device=self.device, dtype=torch.float32)
+		s_t = s_t.permute(0, 3, 1, 2)
+        		q_t = self.network(s_t)
+	In main function correct the following function:
+        		def environment_builder():
+                                          env.reset(seed=random_state.randint(1, 2**31))
+		

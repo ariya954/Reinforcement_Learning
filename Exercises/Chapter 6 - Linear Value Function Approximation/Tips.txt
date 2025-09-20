@@ -1,0 +1,21 @@
+To resolve the bugs for running the CartPole environment:
+	First to install gym library for building the CartPole environment:
+		Navigate to D:/python/Scripts
+		Hold shift and right click (shift + right click)
+		click on "open in terminal"
+		type "python3 -m venv my_env"
+		Navigate to D:/python/my_env
+		Hold shift and right click (shift + right click)
+		click on "open in terminal"
+		type "pip install gym"
+		Copy the gym folders under D:/python/my_env/Lib/site-packages into D:/python/Scripts/Lib		 
+	After installing gym library, correct the following lines of the linear_mc_cartpole.py and linear_q_cartpole.py in run_train_steps function:
+		s_t, _ = env.reset()
+		s_tp1, r_t, terminated, truncated, _ = env.step(a_t)
+        		done = terminated or truncated
+	In main function correct the following function:
+        		def environment_builder():
+        		      env = gym.make('CartPole-v1')
+                                          env.reset(seed=random_state.randint(1, 2**31))
+                                          return env
+		
